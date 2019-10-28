@@ -7,5 +7,5 @@ setuptools.setup(
     description="Merging EAST, CRAFT and CTPM",
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
-    python_requires='>=3.6',
+    python_requires='>=3.5',
 )
