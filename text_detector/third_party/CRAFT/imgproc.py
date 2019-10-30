@@ -36,7 +36,7 @@ def denormalizeMeanVariance(in_img, mean=(0.485, 0.456, 0.406), variance=(0.229,
 
 def resize_aspect_ratio(img, square_size, interpolation, mag_ratio=1):
     height, width, channel = img.shape
-
+    
     # magnify image size
     target_size = mag_ratio * max(height, width)
 
@@ -45,10 +45,8 @@ def resize_aspect_ratio(img, square_size, interpolation, mag_ratio=1):
         target_size = square_size
     
     ratio = target_size / max(height, width)    
-
     target_h, target_w = int(height * ratio), int(width * ratio)
     proc = cv2.resize(img, (target_w, target_h), interpolation = interpolation)
-
 
     # make canvas and paste image
     target_h32, target_w32 = target_h, target_w

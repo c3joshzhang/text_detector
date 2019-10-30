@@ -111,12 +111,23 @@ def remove_text(img, mask_polygons, method='polygon'):
     
     def _poly_remove(img, polys):
         '''
-        directly mask the bouding polygons with white and retur
+        directly mask the bouding polygons with white and return 
         '''
         removed = img.copy()
         for mp in mask_polygons:
             removed = cv.fillPoly(removed, [mp], color=(255,255,255))
         return removed
+
+    def _stats_remove(img, polys):
+        """
+        use cv2.connectedComponentsWithStats to remove the noise
+        1. create a blank background for each polygon with max/min vertices
+        2. overlay the polygons crop of the image to the background
+        3. use cv2.connectedComponentsWithStats to remove the nos
+
+        """
+        pass
+    
     
     method_dict = {'pixel': _pixel_remove,'polygon': _poly_remove}
     if method not in method_dict:
