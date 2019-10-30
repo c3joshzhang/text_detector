@@ -188,8 +188,7 @@ class CraftTextDetector(BaseTextDetector):
                     poly=True):
         """
         apply main CRAFT net and the link refiner net to generate text bounding
-        polygons, a white boarder is added to the image to prevent cv error 
-        which can happen when the bounding box touches boarder
+        polygons
         
         Args:
             main_net: trained torch net object
