@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Oct 23 17:53:01 2019
-
 @author: joshzhang
 """
 from text_detector.third_party.CRAFT.craft import CRAFT
@@ -70,26 +69,11 @@ class CraftTextDetector(BaseTextDetector):
                       .format(vert_step+1, vert_steps,
                               hori_step+1, hori_steps))
                 
-                # set the crop box vertices 
-                if vert_step != vert_steps - 1 and hori_step != hori_steps - 1:
-                    x_start = vert_step * sub_img_h
-                    y_start = hori_step * sub_img_w
-                else:
-                    x_start = max(full_h - sub_img_h, 0)
-                    y_start = max(full_w - sub_img_w, 0)
-                x_end = min(x_start + sub_img_h, full_h)
-                y_end = min(y_start + sub_img_w, full_w)
-                
-                if vert_step != vert_steps - 1 and hori_step != hori_steps - 1:
-                    vert_x_start = x_end - int(sub_img_overlap/2)
-                    hori_y_start = y_end - int(sub_img_overlap/2)
-                else:
-                    vert_x_start = x_end - sub_img_overlap
-                    hori_y_start = y_end - sub_img_overlap
-                vert_x_end = min(vert_x_start + sub_img_overlap, full_h)
-                hori_y_end = min(hori_y_start + sub_img_overlap, full_w)
-                       
                 # main sub crop
+                x_start = vert_step * sub_img_h
+                x_end = min(x_start + sub_img_h, full_h)
+                y_start = hori_step * sub_img_w
+                y_end = min(y_start + sub_img_w, full_w)
                 main_crop = img[x_start: x_end, y_start: y_end, :]
                 _, main_polys = self.__craft_net(main_net, refine_net,
                                                  main_crop, 
@@ -99,11 +83,13 @@ class CraftTextDetector(BaseTextDetector):
                                                  link_threshold,
                                                  low_text,
                                                  cuda,
-                                                 poly)
+                                                poly)
                 for p in main_polys:
                     all_polys.append(p + np.array([y_start, x_start]))
                     
                 # vertical gap filler
+                vert_x_start = x_end - int(sub_img_overlap/2)
+                vert_x_end = min(vert_x_start + sub_img_overlap, full_h)
                 vert_crop = img[vert_x_start: vert_x_end, y_start: y_end, :]
                 _, vert_polys = self.__craft_net(main_net, refine_net,
                                                  vert_crop, 
@@ -118,6 +104,8 @@ class CraftTextDetector(BaseTextDetector):
                     all_polys.append(p + np.array([y_start, vert_x_start]))
                     
                 # horizontal gap filler
+                hori_y_start = y_end - int(sub_img_overlap/2)
+                hori_y_end = min(hori_y_start + sub_img_overlap, full_w)
                 hori_crop = img[x_start: x_end, hori_y_start: hori_y_end, :]
                 _, hori_polys = self.__craft_net(main_net, refine_net,
                                                  hori_crop, 
@@ -194,7 +182,7 @@ class CraftTextDetector(BaseTextDetector):
             main_net: trained torch net object
             refine_net: trained torch net object
             image (np.ndarray): single image 
-            canvas_size (unsigned int): the image size to resize to 
+            canvas_size (unsigned int): the image size to resiz to 
             mag_ratio (float): the ratio to magnified 
             text_threshold (float): text confidence threshold
             link_threshold (float): link confidence threshold
@@ -207,6 +195,7 @@ class CraftTextDetector(BaseTextDetector):
             polys: bounding polygons 
             ret_score_text: detected text scores
         """
+        # resize
         img_resized, target_ratio, size_heatmap = \
             imgproc.resize_aspect_ratio(image, canvas_size, 
                                         interpolation=cv2.INTER_LINEAR, 
